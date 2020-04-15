@@ -1,6 +1,5 @@
-import cv2
-from demo.video import Video
+import demo.json_parser
 
-vid = Video("resources\\44955.mp4")
-vid.display()
-
+for video in demo.json_parser.get_videos():
+    print(video)
+    video.display()
