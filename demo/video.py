@@ -1,5 +1,5 @@
 import cv2 as cv
-
+import numpy
 
 class Video:
 
@@ -13,7 +13,7 @@ class Video:
 
     def display(self):
         frames = VideoFrames(self)
-        for i, frame in enumerate(frames):
+        for frame in frames:
             cv.rectangle(frame, (10, 2), (frame.shape[1] - 10, 20), (255, 255, 255), -1)
             cv.putText(frame, str(frames.capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
@@ -34,7 +34,7 @@ class VideoFrames:
 
     def __iter__(self):
         """
-        You should only have one iterator at a time.
+        You should only have one iterator at a time per instance.
         """
 
         if not self.capture.isOpened:
@@ -42,6 +42,8 @@ class VideoFrames:
             return
 
         while True:
+            frame: numpy.ndarray
+
             ret, frame = self.capture.read()
 
             if frame is None:
