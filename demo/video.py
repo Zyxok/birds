@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy
 
+
 class Video:
 
     def __init__(self, path, species):
@@ -13,8 +14,8 @@ class Video:
     def display(self):
         frames = VideoFrames(self)
         for frame in frames:
-            #cv.rectangle(frame, (10, 2), (frame.shape[1] - 10, 20), (255, 255, 255), -1)
-            #cv.putText(frame, str(frames.capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
+            # cv.rectangle(frame, (10, 2), (frame.shape[1] - 10, 20), (255, 255, 255), -1)
+            # cv.putText(frame, str(frames.capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
             #           cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
             # cv.putText(frame, "", (80, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
 

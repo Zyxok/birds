@@ -18,14 +18,15 @@ def get_images_and_labels():
     images = []
     labels = []
     for video in videos:
-        for frame in VideoFrames(video):
+        frames_list = list(VideoFrames(video))
+
+        for i in range(5):  # Takes 5 random frames from each video
+            frame = random.choice(frames_list)
             frame = frame / 255.0
 
             images.append(frame)
             labels.append(SPECIES.index(video.species))
 
-            # only do one frame, for now
-            break
     return images, labels
 
 
@@ -37,14 +38,13 @@ def test_display(images, labels):
         plt.yticks([])
         plt.grid(False)
         plt.imshow(images[i], cmap=plt.cm.binary)
-        # The CIFAR labels happen to be arrays,
-        # which is why you need the extra index
         plt.xlabel(SPECIES[labels[i]])
     plt.show()
 
+
 def main():
     images, labels = get_images_and_labels()
-    training_count = 25
+    training_count = 25 * 5
     train_images = np.array(images[:training_count])
     test_images = np.array(images[training_count:])
     train_labels = np.array(labels[:training_count])
@@ -81,5 +81,3 @@ def main():
     test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
 
     print(test_acc)
-
-
