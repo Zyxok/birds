@@ -13,21 +13,27 @@ import random
 def get_images_and_labels():
     videos = demo.csv_parser.parse_get_videos()
     random.shuffle(videos)
-    videos = videos[:40]
+    videos = videos[:10]
 
-    images = []
+    frame2D = []
     labels = []
     for video in videos:
-        frames_list = list(VideoFrames(video))
+        counter = 0
 
-        for i in range(5):  # Takes 5 random frames from each video
-            frame = random.choice(frames_list)
+        framelist = []
+
+        for frame in VideoFrames(video):
             frame = frame / 255.0
 
-            images.append(frame)
-            labels.append(SPECIES.index(video.species))
+            framelist.append(frame)
 
-    return images, labels
+            counter += 1
+            if counter > 8:
+                break
+
+        frame2D.append(np.array(framelist))
+        labels.append(SPECIES.index(video.species))
+    return frame2D, labels
 
 
 def test_display(images, labels):
@@ -43,26 +49,27 @@ def test_display(images, labels):
 
 
 def main():
-    images, labels = get_images_and_labels()
-    training_count = 25 * 5
-    train_images = np.array(images[:training_count])
-    test_images = np.array(images[training_count:])
+    videos, labels = get_images_and_labels()
+    training_count = 7  # 25
+    train_images = np.array(videos[:training_count])
+    test_images = np.array(videos[training_count:])
     train_labels = np.array(labels[:training_count])
     test_labels = np.array(labels[training_count:])
 
-    # test_display(images, labels)
+    # test_display(videos, labels)
 
     model = models.Sequential()
-
-    model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(360, 585, 3)))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-
-    model.add(layers.Flatten())
-    model.add(layers.Dense(64, activation='relu'))
-    model.add(layers.Dense(SPECIES_COUNT))
+    model.add(layers.TimeDistributed(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(360, 585, 3))))
+    model.add(layers.TimeDistributed(layers.MaxPooling2D((2, 2))))
+    model.add(layers.TimeDistributed(layers.Flatten()))
+    # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    # model.add(layers.MaxPooling2D((2, 2)))
+    # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    model.add(layers.LSTM(8))  # 8 for testing
+    # 128 = Around 5 seconds of frames
+    # model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dense(32, activation='relu'))
+    model.add(layers.Dense(SPECIES_COUNT, activation='sigmoid'))
     model.compile(optimizer='adam',
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
