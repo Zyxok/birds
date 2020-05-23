@@ -1,4 +1,4 @@
-from demo.video import Video
+from demo.convert.video import Video
 
 PATH = "resources\\" + "data_condensed.csv"
 
