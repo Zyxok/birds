@@ -1,6 +1,4 @@
-import demo.csv_parser
-from demo.video import VideoFrames
-from demo.constants import SPECIES, SPECIES_COUNT
+import demo
 
 import numpy as np
 import tensorflow as tf
@@ -10,51 +8,16 @@ import matplotlib.pyplot as plt
 import random
 
 
-def get_images_and_labels():
-    videos = demo.csv_parser.parse_get_videos()
-    random.shuffle(videos)
-    videos = videos[:10]
-
-    frame2D = []
-    labels = []
-    for video in videos:
-        counter = 0
-
-        framelist = []
-
-        for frame in VideoFrames(video):
-            frame = frame / 255.0
-
-            framelist.append(frame)
-
-            counter += 1
-            if counter > 8:
-                break
-
-        frame2D.append(np.array(framelist))
-        labels.append(SPECIES.index(video.species))
-    return frame2D, labels
-
-
-def test_display(images, labels):
-    plt.figure(figsize=(10, 10))
-    for i in range(15):
-        plt.subplot(5, 5, i + 1)
-        plt.xticks([])
-        plt.yticks([])
-        plt.grid(False)
-        plt.imshow(images[i], cmap=plt.cm.binary)
-        plt.xlabel(SPECIES[labels[i]])
-    plt.show()
-
-
 def main():
-    videos, labels = get_images_and_labels()
-    training_count = 7  # 25
-    train_images = np.array(videos[:training_count])
-    test_images = np.array(videos[training_count:])
-    train_labels = np.array(labels[:training_count])
-    test_labels = np.array(labels[training_count:])
+    dataset = demo.dataset.get_dataset_frames()
+    train_images = dataset
+    test_images = dataset
+    print(dataset)
+    # print(test_images)
+    # training_count = None  # ????
+    # print("TRAINING COUNT:", training_count)
+    train_labels = None
+    test_labels = None
 
     # test_display(videos, labels)
 
@@ -65,11 +28,14 @@ def main():
     # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
     # model.add(layers.MaxPooling2D((2, 2)))
     # model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.LSTM(8))  # 8 for testing
+
+    model.add(layers.LSTM(32))  # NOT THE AMOUNT OF FRAMES!
+
+    # 8 for testing
     # 128 = Around 5 seconds of frames
     # model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(32, activation='relu'))
-    model.add(layers.Dense(SPECIES_COUNT, activation='sigmoid'))
+    model.add(layers.Dense(len(demo.constants.SPECIES), activation='sigmoid'))
     model.compile(optimizer='adam',
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
